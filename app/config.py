@@ -1,6 +1,5 @@
 """
 Configuration settings for UniPack API
-Loads from environment variables with sensible defaults
 """
 
 from pydantic_settings import BaseSettings
@@ -8,26 +7,24 @@ from functools import lru_cache
 
 
 class Settings(BaseSettings):
-    """Application settings loaded from environment variables"""
+    """Application settings from environment variables"""
     
     # Application
     app_name: str = "UniPack API"
     app_version: str = "1.0.0"
     debug: bool = False
     
-    # NocoDB Configuration
-    nocodb_url: str = "https://noco.unipack.asia"
-    nocodb_api_token: str = ""
-    nocodb_base_id: str = ""  # Will be set after creating the base
+    # API Authentication
+    api_key: str = "unipack-api-key-2024"
     
     # Odoo Configuration
     odoo_url: str = "https://erp.unipack.asia"
     odoo_db: str = "unipack"
     odoo_user: str = "hello@unipack.asia"
-    odoo_password: str = ""
+    odoo_api_key: str = "8452eb0dc0dc4a3e1bcf8aae9c5cce53b0cd41f4"
     
-    # API Configuration
-    api_prefix: str = ""
+    # Gemini AI
+    gemini_api_key: str = ""
     
     class Config:
         env_file = ".env"
@@ -37,5 +34,4 @@ class Settings(BaseSettings):
 
 @lru_cache()
 def get_settings() -> Settings:
-    """Get cached settings instance"""
     return Settings()

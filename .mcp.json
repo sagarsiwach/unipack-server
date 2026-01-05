@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "NocoDB Base - Unipack": {
+      "type": "http",
+      "url": "https://noco.unipack.asia/mcp/ncyaklfvp9znkrpn",
+      "headers": {
+        "xc-mcp-token": "LcV1QW53cbJWRqLQ15v1M7GB58Tv-3um"
+      }
+    }
+  }
+}

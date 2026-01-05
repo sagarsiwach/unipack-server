@@ -1,0 +1,23 @@
+{
+  "name": "unipack-server",
+  "version": "1.0.0",
+  "description": "FastAPI backend that syncs data between NocoDB and Odoo ERP.",
+  "main": "setup-nocodb-schema.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sagarsiwach/unipack-server.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/sagarsiwach/unipack-server/issues"
+  },
+  "homepage": "https://github.com/sagarsiwach/unipack-server#readme",
+  "dependencies": {
+    "axios": "^1.13.2"
+  }
+}

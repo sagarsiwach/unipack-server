@@ -1,50 +1,31 @@
 """
-UniPack API - NocoDB to Odoo Sync Backend
 Main FastAPI Application
 """
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from contextlib import asynccontextmanager
 import logging
 
 from .config import get_settings
-from .routers import health_router, products_router, contacts_router, sync_router
-from .services.nocodb_service import get_nocodb_service
+from .routers import v1_router
 
-# Configure logging
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
-logger = logging.getLogger(__name__)
-
-
-@asynccontextmanager
-async def lifespan(app: FastAPI):
-    """Application lifespan handler"""
-    logger.info("Starting UniPack API...")
-    yield
-    # Cleanup
-    nocodb = get_nocodb_service()
-    await nocodb.close()
-    logger.info("UniPack API shutdown complete")
 
 
 def create_app() -> FastAPI:
-    """Create and configure FastAPI application"""
     settings = get_settings()
     
     app = FastAPI(
         title=settings.app_name,
         version=settings.app_version,
-        description="API for syncing data between NocoDB and Odoo ERP",
-        lifespan=lifespan,
+        description="UniPack API - Odoo Integration Backend",
         docs_url="/docs",
         redoc_url="/redoc"
     )
     
-    # CORS middleware
     app.add_middleware(
         CORSMiddleware,
         allow_origins=["*"],
@@ -53,11 +34,8 @@ def create_app() -> FastAPI:
         allow_headers=["*"],
     )
     
-    # Include routers
-    app.include_router(health_router)
-    app.include_router(products_router)
-    app.include_router(contacts_router)
-    app.include_router(sync_router)
+    # Mount v1 API router
+    app.include_router(v1_router, prefix="/api/v1")
     
     return app
 

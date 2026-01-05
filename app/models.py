@@ -1,147 +1,151 @@
 """
-Pydantic models for request/response validation
+Pydantic models for API request/response
 """
 
 from pydantic import BaseModel, EmailStr, Field
-from typing import Optional, List
+from typing import Optional, List, Any
 from datetime import datetime
-from enum import Enum
-
-
-class SyncStatus(str, Enum):
-    """Sync status enumeration"""
-    PENDING = "pending"
-    SYNCED = "synced"
-    ERROR = "error"
 
 
 # ============== Product Models ==============
 
-class ProductBase(BaseModel):
-    """Base product model with common fields"""
-    name: str = Field(..., alias="product_name", min_length=1)
-    internal_ref: Optional[str] = None
-    category: Optional[str] = None
-    sales_price: Optional[float] = Field(None, alias="list_price")
-    cost: Optional[float] = None
-    description: Optional[str] = None
-
-    class Config:
-        populate_by_name = True
-
-
-class ProductCreate(BaseModel):
-    """Product creation request model"""
-    name: str = Field(..., min_length=1)
-    price: Optional[float] = None
-    category: Optional[str] = None
-    internal_ref: Optional[str] = None
-    cost: Optional[float] = None
-    description: Optional[str] = None
-
-
-class ProductResponse(BaseModel):
-    """Product response model"""
-    id: int
-    name: str
-    success: bool = True
-    message: Optional[str] = None
-
-
-class NocoDBProduct(BaseModel):
-    """NocoDB Product record model"""
-    Id: Optional[int] = None
+class Product(BaseModel):
+    """Product for batch creation"""
+    product_code: Optional[str] = ""
     product_name: str
-    internal_ref: Optional[str] = None
-    category: Optional[str] = None
-    sales_price: Optional[float] = None
-    cost: Optional[float] = None
-    description: Optional[str] = None
-    odoo_id: Optional[int] = None
-    sync_status: Optional[str] = "pending"
-    last_synced: Optional[datetime] = None
+    category_id: Optional[int] = 1
+    sales_price: Optional[float] = 0
+    cost: Optional[float] = 0
+    description: Optional[str] = ""
+    hsn_code: Optional[str] = ""
+    sales_tax_id: Optional[int] = None
 
 
-# ============== Contact Models ==============
-
-class ContactBase(BaseModel):
-    """Base contact model with common fields"""
-    name: str = Field(..., min_length=1)
-    email: Optional[EmailStr] = None
-    phone: Optional[str] = None
-    mobile: Optional[str] = None
-    company_name: Optional[str] = None
-    street: Optional[str] = None
-    city: Optional[str] = None
-    state: Optional[str] = None
-    country: Optional[str] = None
-    is_customer: Optional[bool] = False
-    is_vendor: Optional[bool] = False
-    tags: Optional[str] = None
+class ProductBatchRequest(BaseModel):
+    """Batch product creation request"""
+    products: List[Product]
+    generate_ai_content: bool = False
 
 
-class ContactCreate(BaseModel):
-    """Contact creation request model"""
-    name: str = Field(..., min_length=1)
-    email: Optional[EmailStr] = None
-    phone: Optional[str] = None
-    mobile: Optional[str] = None
-    company: Optional[str] = Field(None, alias="company_name")
-    street: Optional[str] = None
-    city: Optional[str] = None
-    state: Optional[str] = None
-    country: Optional[str] = None
-    is_customer: Optional[bool] = True
-    is_vendor: Optional[bool] = False
-    tags: Optional[str] = None
-
-    class Config:
-        populate_by_name = True
+class ProductResult(BaseModel):
+    """Single product operation result"""
+    success: bool
+    id: Optional[int] = None
+    message: str
 
 
-class ContactResponse(BaseModel):
-    """Contact response model"""
+class ProductBatchResponse(BaseModel):
+    """Batch product response"""
+    success: bool
+    results: List[ProductResult]
+
+
+# ============== Customer Models ==============
+
+class Customer(BaseModel):
+    """Customer for batch creation"""
+    company_name: str
+    contact_name: Optional[str] = ""
+    mobile: Optional[str] = ""
+    phone: Optional[str] = ""
+    email: Optional[str] = ""
+    address_line_1: Optional[str] = ""
+    address_line_2: Optional[str] = ""
+    city: Optional[str] = ""
+    state: Optional[str] = ""
+    pincode: Optional[str] = ""
+    gst_number: Optional[str] = ""
+    pan: Optional[str] = ""
+    customer_type: Optional[str] = "B2B"
+
+
+class CustomerBatchRequest(BaseModel):
+    """Batch customer creation request"""
+    customers: List[Customer]
+
+
+class CustomerResult(BaseModel):
+    """Single customer operation result"""
+    success: bool
+    id: Optional[int] = None
+    message: str
+
+
+class CustomerBatchResponse(BaseModel):
+    """Batch customer response"""
+    success: bool
+    results: List[CustomerResult]
+
+
+# ============== Reference Data Models ==============
+
+class Category(BaseModel):
+    """Product category"""
     id: int
     name: str
-    success: bool = True
-    message: Optional[str] = None
+    complete_name: Optional[str] = None
 
 
-class NocoDBContact(BaseModel):
-    """NocoDB Contact record model"""
-    Id: Optional[int] = None
+class Tax(BaseModel):
+    """Tax record"""
+    id: int
     name: str
-    email: Optional[str] = None
-    phone: Optional[str] = None
-    mobile: Optional[str] = None
-    company_name: Optional[str] = None
-    street: Optional[str] = None
-    city: Optional[str] = None
-    state: Optional[str] = None
-    country: Optional[str] = None
-    is_customer: Optional[bool] = False
-    is_vendor: Optional[bool] = False
-    tags: Optional[str] = None
-    odoo_id: Optional[int] = None
-    sync_status: Optional[str] = "pending"
-    last_synced: Optional[datetime] = None
+    amount: float
 
 
-# ============== Sync Response Models ==============
+class Country(BaseModel):
+    """Country record"""
+    id: int
+    name: str
+    code: str
 
-class SyncResult(BaseModel):
-    """Sync operation result model"""
+
+class CategoriesResponse(BaseModel):
     success: bool
-    created: int = 0
-    updated: int = 0
-    errors: List[str] = []
-    message: Optional[str] = None
+    categories: List[Category]
 
+
+class TaxesResponse(BaseModel):
+    success: bool
+    taxes: List[Tax]
+
+
+class CountriesResponse(BaseModel):
+    success: bool
+    countries: List[Country]
+
+
+# ============== AI Models ==============
+
+class AIGenerateNameRequest(BaseModel):
+    """AI name generation request"""
+    product_code: str
+    machine_name: str
+    size: Optional[str] = "Standard"
+
+
+class AIGenerateNameResponse(BaseModel):
+    success: bool
+    name: str
+
+
+class AIGenerateDescriptionRequest(BaseModel):
+    """AI description generation request"""
+    product_name: str
+    category: Optional[str] = ""
+    specifications: Optional[str] = ""
+
+
+class AIGenerateDescriptionResponse(BaseModel):
+    success: bool
+    description: str
+
+
+# ============== Health Check ==============
 
 class HealthResponse(BaseModel):
-    """Health check response model"""
+    """Health check response"""
     status: str
-    odoo: bool
-    nocodb: bool
-    version: str = "1.0.0"
-    timestamp: datetime = Field(default_factory=datetime.utcnow)
+    odoo_connected: bool
+    version: str
+    error: Optional[str] = None
