@@ -17,8 +17,17 @@ services:
       - ODOO_PASSWORD=${ODOO_PASSWORD}
     env_file:
       - .env
+    # Health check using Python (not curl - curl not in slim image)
     healthcheck:
-      test: [ "CMD", "curl", "-f", "http://localhost:8000/health" ]
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/api/v1/health', timeout=5)"]
       interval: 30s
       timeout: 10s
       retries: 3
+      start_period: 10s
+    # Resource limits
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+        reservations:
+          memory: 256M
